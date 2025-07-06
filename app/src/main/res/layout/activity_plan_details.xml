@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="40dp">
+
+        <!-- Plan Title -->
+        <TextView
+            android:id="@+id/planTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Plan Name"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- Amount Label + Field -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Amount"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/inputAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:hint="Enter amount"
+            android:inputType="numberDecimal"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA" />
+
+        <!-- Purpose Label + Field -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Purpose"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/inputPurpose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:hint="e.g. Food, Travel"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA" />
+
+        <!-- Date Label + Field -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/dateInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+
+                android:focusable="false"
+                android:hint="Select date"
+                android:inputType="none"
+                android:padding="10dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888" />
+
+            <ImageView
+                android:id="@+id/dateIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Select Date"
+                android:padding="6dp"
+                android:src="@android:drawable/ic_menu_my_calendar" />
+        </LinearLayout>
+
+        <!-- Paid By Label + Spinner -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Paid by"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/paidBySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#FFFFFF"
+            android:popupBackground="#1E1E1E"
+            android:spinnerMode="dropdown" />
+
+        <!-- Split Type Spinner -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Split Type"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/splitTypeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#FFFFFF"
+            android:popupBackground="#1E1E1E"
+            android:spinnerMode="dropdown" />
+
+
+        <!-- Add Expense Button -->
+        <Button
+            android:id="@+id/addExpenseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="#4CAF50"
+            android:text="Add Expense"
+            android:textColor="#FFFFFF" />
+
+        <!-- Split Method Label + Spinner -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Split Method"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/splitMethodSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#FFFFFF"
+            android:popupBackground="#1E1E1E"
+            android:spinnerMode="dropdown" />
+
+
+        <!-- Table Header / Expense List -->
+<!--        .....-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Plan Expenses"
+            android:textColor="#FF9800"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TableLayout
+            android:id="@+id/expensesTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="true"
+            android:padding="8dp"
+            android:shrinkColumns="*"
+            android:stretchColumns="*" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

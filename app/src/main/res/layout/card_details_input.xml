@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/cardDigitTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Card/Account Digits"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="48dp"/>
+
+    <!-- Dropdown (Spinner) -->
+    <Spinner
+        android:id="@+id/typeSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#1E1E1E"
+        android:popupBackground="#1E1E1E"
+        app:layout_constraintTop_toBottomOf="@id/cardDigitTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Last 4 Digits Input -->
+    <EditText
+        android:id="@+id/last4Input"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="#1E1E1E"
+        android:hint="Last 4 Digits"
+        android:inputType="number"
+        android:maxLength="4"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/typeSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Add Button -->
+    <Button
+        android:id="@+id/addDigitsButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#4CAF50"
+        android:text="Add"
+        android:textColor="#FFFFFF"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/last4Input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Why Icon -->
+    <ImageView
+        android:id="@+id/whyIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:tint="#03A9F4"
+        app:layout_constraintTop_toBottomOf="@id/addDigitsButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Why Text -->
+    <TextView
+        android:id="@+id/whyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Why are we asking this?"
+        android:textColor="#03A9F4"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/addDigitsButton"
+        app:layout_constraintStart_toEndOf="@id/whyIcon"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"/>
+
+    <!-- Skip Button -->
+    <Button
+        android:id="@+id/skipButton"
+        android:layout_width="89dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#03A9F4"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text="Skip"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/whyText"
+        app:layout_constraintTop_toBottomOf="@id/addDigitsButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

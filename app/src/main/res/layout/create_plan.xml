@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="16dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/mainContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="50dp">
+
+            <!-- Plan Name -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Plan Name"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <!-- People Count -->
+            <EditText
+                android:id="@+id/etPlanName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#FFFFFF"
+                android:hint="Enter plan name"
+                android:inputType="text"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Number of People"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etPeopleCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#FFFFFF"
+                android:hint="e.g. 3"
+                android:inputType="number"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB" />
+
+            <CheckBox
+                android:id="@+id/includeSelfCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Are you a part of this plan?"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:id="@+id/selfNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:backgroundTint="#FFFFFF"
+                android:background="@drawable/edittext_underline"
+                android:hint="Your Name"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnGenerateFields"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#1EB980"
+                android:text="Add People Fields"
+                android:textColor="#FFFFFF" />
+
+            <!-- Dynamic Fields Container -->
+            <LinearLayout
+                android:id="@+id/dynamicNamesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical" />
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/btnSavePlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="#1EB980"
+                android:text="Create Plan"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

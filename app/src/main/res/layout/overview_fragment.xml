@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#000000">
+
+    <LinearLayout
+        android:id="@+id/overviewFragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/monthChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                app:singleSelection="true"
+                app:chipSpacing="8dp"
+                app:singleLine="true"/>
+        </HorizontalScrollView>
+
+
+
+        <TextView
+            android:id="@+id/creditDebitText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Credit: ₹0 | Debit: ₹0"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"/>
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="16dp"
+            android:background="#000000" />
+
+        <TextView
+            android:id="@+id/totalSpentText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Transaction in Month"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:gravity="center"/>
+
+
+    </LinearLayout>
+</ScrollView>

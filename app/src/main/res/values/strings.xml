@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MoneySplit</string>
+
+    <string-array name="sort_options">
+        <item>Recent</item>
+        <item>Old</item>
+        <item>Credit</item>
+        <item>Debit</item>
+        <item>Large Amount</item>
+        <item>Small Amount</item>
+    </string-array>
+</resources>
