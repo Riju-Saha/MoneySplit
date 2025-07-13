@@ -243,6 +243,119 @@ class moneySplit_Database(ctx: Context) :
         db.delete("cards", "id = ? AND username = ?", arrayOf(cardId.toString(), username))
     }
 
+    fun isExpenseAlreadyExists(username: String, amount: Double, purpose: String, type: String, dateTime: String, modeOfPayment: String): Boolean {
+        val db = this.readableDatabase
+        val query = """
+        SELECT 1 FROM expense_table
+        WHERE username = ? AND amount = ? AND purpose = ? AND type = ? AND date_time = ? AND mode_of_payment = ?
+        LIMIT 1
+    """
+        val cursor = db.rawQuery(query, arrayOf(username, amount.toString(), purpose, type, dateTime, modeOfPayment))
+        val exists = cursor.moveToFirst()
+        cursor.close()
+        db.close()
+        return exists
+    }
+
+    fun insertExpenseWithTimeAndMode(username: String, amount: Double, purpose: String, type: String, dateTime: String, modeOfPayment: String): Boolean {
+        if (isExpenseAlreadyExists(username, amount, purpose, type, dateTime, modeOfPayment)) {
+            Log.d("DB", "Duplicate expense detected. Skipping insert.")
+            return false
+        }
+
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("username", username)
+            put("amount", amount)
+            put("purpose", purpose)
+            put("type", type)
+            put("date_time", dateTime)
+            put("mode_of_payment", modeOfPayment)
+        }
+
+        val result = db.insert("expense_table", null, values)
+        db.close()
+        return result != -1L
+    }
+
+    fun getAllExpenses(username: String): MutableList<Expense> {
+        val expenses = mutableListOf<Expense>()
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT * FROM expense_table WHERE username = ?",
+            arrayOf(username)
+        )
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val amount = cursor.getDouble(cursor.getColumnIndexOrThrow("amount"))
+                val purpose = cursor.getString(cursor.getColumnIndexOrThrow("purpose"))
+                val type = cursor.getString(cursor.getColumnIndexOrThrow("type"))
+                val dateTime = cursor.getString(cursor.getColumnIndexOrThrow("date_time"))
+                val modeOfPayment = cursor.getString(cursor.getColumnIndexOrThrow("mode_of_payment"))
+
+                val expense = Expense(id, amount, purpose, type, dateTime, modeOfPayment)
+                expenses.add(expense)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return expenses
+    }
+
+    fun updateExpense(
+        username: String,
+        expense: Expense,
+        newAmount: Double,
+        newPurpose: String,
+        newDateTime: String,
+        newModeOfPayment: String  // ✅ new argument
+    ): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("amount", newAmount)
+            put("purpose", newPurpose)
+            put("date_time", newDateTime)
+            put("mode_of_payment", newModeOfPayment) // ✅ update this too
+        }
+
+        val result = db.update(
+            "expense_table",
+            values,
+            "username = ? AND amount = ? AND purpose = ? AND type = ? AND date_time = ? AND mode_of_payment = ?",
+            arrayOf(
+                username,
+                expense.amount.toString(),
+                expense.purpose,
+                expense.type,
+                expense.dateTime,
+                expense.modeOfPayment // ✅ match old mode too
+            )
+        )
+
+        db.close()
+        return result > 0
+    }
+
+    fun deleteExpense(username: String, expense: Expense): Boolean {
+        val db = writableDatabase
+        val result = db.delete(
+            "expense_table",
+            "amount = ? AND purpose = ? AND type = ? AND date_time = ? AND username = ?",
+            arrayOf(
+                expense.amount.toString(),
+                expense.purpose,
+                expense.type,
+                expense.dateTime,
+                username
+            )
+        )
+        db.close()
+        return result > 0
+    }
+
     fun getTotalForMonthByTypeFromExpenseUsingLike(month: String, year: String, type: String, username: String): Double {
 //        val username = getLoggedInUsername() ?: return 0.0
         val db = readableDatabase
@@ -262,7 +375,7 @@ class moneySplit_Database(ctx: Context) :
         return total
     }
 
-    fun isIternaryExists(planName: String, createdBy: String): Boolean {
+    fun isPlanExists(planName: String, createdBy: String): Boolean {
         val db = readableDatabase
         val cursor = db.rawQuery(
             "SELECT * FROM plan_table WHERE plan_name = ? AND created_by = ?",
@@ -274,7 +387,7 @@ class moneySplit_Database(ctx: Context) :
         return exists
     }
 
-    fun insertIternary(planName: String, numParticipants: Int, participants: String, createdOn: String, createdAt: String, createdBy: String): Boolean {
+    fun insertPlan(planName: String, numParticipants: Int, participants: String, createdOn: String, createdAt: String, createdBy: String): Boolean {
 //        val createdBy = getLoggedInUsername() ?: return false
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -290,7 +403,7 @@ class moneySplit_Database(ctx: Context) :
         return result != -1L
     }
 
-    fun getAllIternaries(username: String): List<Plan> {
+    fun getAllPlan(username: String): List<Plan> {
         val db = readableDatabase
         val list = mutableListOf<Plan>()
         val cursor = db.rawQuery(
@@ -328,123 +441,6 @@ class moneySplit_Database(ctx: Context) :
         return planNames
     }
 
-    fun isExpenseAlreadyExists(username: String, amount: Double, purpose: String, type: String, dateTime: String, modeOfPayment: String): Boolean {
-        val db = this.readableDatabase
-        val query = """
-        SELECT 1 FROM expense_table
-        WHERE username = ? AND amount = ? AND purpose = ? AND type = ? AND date_time = ? AND mode_of_payment = ?
-        LIMIT 1
-    """
-        val cursor = db.rawQuery(query, arrayOf(username, amount.toString(), purpose, type, dateTime, modeOfPayment))
-        val exists = cursor.moveToFirst()
-        cursor.close()
-        db.close()
-        return exists
-    }
-
-
-    fun insertExpenseWithTimeAndMode(username: String, amount: Double, purpose: String, type: String, dateTime: String, modeOfPayment: String): Boolean {
-        if (isExpenseAlreadyExists(username, amount, purpose, type, dateTime, modeOfPayment)) {
-            Log.d("DB", "Duplicate expense detected. Skipping insert.")
-            return false
-        }
-
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put("username", username)
-            put("amount", amount)
-            put("purpose", purpose)
-            put("type", type)
-            put("date_time", dateTime)
-            put("mode_of_payment", modeOfPayment)
-        }
-
-        val result = db.insert("expense_table", null, values)
-        db.close()
-        return result != -1L
-    }
-
-
-    fun getAllExpenses(username: String): MutableList<Expense> {
-        val expenses = mutableListOf<Expense>()
-        val db = readableDatabase
-        val cursor = db.rawQuery(
-            "SELECT * FROM expense_table WHERE username = ?",
-            arrayOf(username)
-        )
-
-        if (cursor.moveToFirst()) {
-            do {
-                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
-                val amount = cursor.getDouble(cursor.getColumnIndexOrThrow("amount"))
-                val purpose = cursor.getString(cursor.getColumnIndexOrThrow("purpose"))
-                val type = cursor.getString(cursor.getColumnIndexOrThrow("type"))
-                val dateTime = cursor.getString(cursor.getColumnIndexOrThrow("date_time"))
-                val modeOfPayment = cursor.getString(cursor.getColumnIndexOrThrow("mode_of_payment"))
-
-                val expense = Expense(id, amount, purpose, type, dateTime, modeOfPayment)
-                expenses.add(expense)
-            } while (cursor.moveToNext())
-        }
-
-        cursor.close()
-        db.close()
-        return expenses
-    }
-
-
-    fun updateExpense(
-        username: String,
-        expense: Expense,
-        newAmount: Double,
-        newPurpose: String,
-        newDateTime: String,
-        newModeOfPayment: String  // ✅ new argument
-    ): Boolean {
-        val db = writableDatabase
-        val values = ContentValues().apply {
-            put("amount", newAmount)
-            put("purpose", newPurpose)
-            put("date_time", newDateTime)
-            put("mode_of_payment", newModeOfPayment) // ✅ update this too
-        }
-
-        val result = db.update(
-            "expense_table",
-            values,
-            "username = ? AND amount = ? AND purpose = ? AND type = ? AND date_time = ? AND mode_of_payment = ?",
-            arrayOf(
-                username,
-                expense.amount.toString(),
-                expense.purpose,
-                expense.type,
-                expense.dateTime,
-                expense.modeOfPayment // ✅ match old mode too
-            )
-        )
-
-        db.close()
-        return result > 0
-    }
-
-
-    fun deleteExpense(username: String, expense: Expense): Boolean {
-        val db = writableDatabase
-        val result = db.delete(
-            "expense_table",
-            "amount = ? AND purpose = ? AND type = ? AND date_time = ? AND username = ?",
-            arrayOf(
-                expense.amount.toString(),
-                expense.purpose,
-                expense.type,
-                expense.dateTime,
-                username
-            )
-        )
-        db.close()
-        return result > 0
-    }
-
     fun getParticipantsForPlan(planName: String): List<String> {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT participants FROM plan_table WHERE plan_name = ?", arrayOf(planName))
@@ -470,7 +466,7 @@ class moneySplit_Database(ctx: Context) :
         return id.toInt()
     }
 
-    fun getExpensesForPlan(plan: String): List<PlanExpense> {
+    fun getPlanExpense(plan: String): List<PlanExpense> {
         val list = mutableListOf<PlanExpense>()
         val db = readableDatabase
         val cursor = db.rawQuery(
@@ -493,6 +489,25 @@ class moneySplit_Database(ctx: Context) :
         return list
     }
 
+    fun updatePlanExpense(expenseId: Int, amount: Double, purpose: String, date: String, paidBy: String): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("amount", amount)
+            put("purpose", purpose)
+            put("date", date)
+            put("paid_by", paidBy)
+        }
+        val rows = db.update("plan_expenses", values, "id = ?", arrayOf(expenseId.toString()))
+        db.close()
+        return rows > 0
+    }
+
+    fun deletePlanExpense(expenseId: Int) {
+        val db = writableDatabase
+        db.delete("plan_expenses", "id = ?", arrayOf(expenseId.toString()))
+        db.close()
+    }
+
     fun insertCustomSplit(expenseId: Int, participant: String, amount: Double): Boolean {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -503,12 +518,6 @@ class moneySplit_Database(ctx: Context) :
         val result = db.insert("custom_splits", null, values)
         db.close()
         return result != -1L
-    }
-
-    fun deletePlanExpense(expenseId: Int) {
-        val db = writableDatabase
-        db.delete("plan_expenses", "id = ?", arrayOf(expenseId.toString()))
-        db.close()
     }
 
     fun deleteCustomSplitsForExpense(expenseId: Int) {
@@ -536,17 +545,5 @@ class moneySplit_Database(ctx: Context) :
         return list
     }
 
-    fun updatePlanExpense(expenseId: Int, amount: Double, purpose: String, date: String, paidBy: String): Boolean {
-        val db = writableDatabase
-        val values = ContentValues().apply {
-            put("amount", amount)
-            put("purpose", purpose)
-            put("date", date)
-            put("paid_by", paidBy)
-        }
-        val rows = db.update("plan_expenses", values, "id = ?", arrayOf(expenseId.toString()))
-        db.close()
-        return rows > 0
-    }
 
 }

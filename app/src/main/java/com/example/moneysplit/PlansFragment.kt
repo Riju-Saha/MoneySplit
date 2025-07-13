@@ -38,7 +38,7 @@ class PlansFragment : Fragment() {
 
     private fun loadPlans() {
         val username = SessionManager.getLoggedInUsername(requireContext())
-        plans = dbHelper.getAllIternaries(username.toString())
+        plans = dbHelper.getAllPlan(username.toString())
 
         if (plans.isNotEmpty()) {
             val adapter = object : ArrayAdapter<moneySplit_Database.Plan>(

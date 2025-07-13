@@ -66,7 +66,7 @@ class CreatePlan : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (dbHelper.isIternaryExists(planName, username)) {
+            if (dbHelper.isPlanExists(planName, username)) {
                 Toast.makeText(this, "Plan name already exists!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -77,7 +77,7 @@ class CreatePlan : AppCompatActivity() {
             val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
-            val success = dbHelper.insertIternary(planName, numParticipants, participants, date, time, username)
+            val success = dbHelper.insertPlan(planName, numParticipants, participants, date, time, username)
 
             if (success) {
                 Toast.makeText(this, "Plan Saved Successfully!", Toast.LENGTH_SHORT).show()

@@ -318,7 +318,7 @@
             expensesTable.addView(headerRow)
 
             // ✅ Get and sort expenses from newest to oldest by date
-            val expenses = dbHelper.getExpensesForPlan(planName)
+            val expenses = dbHelper.getPlanExpense(planName)
                 .sortedByDescending { it.date } // assumes date is in a sortable format like yyyy-MM-dd
 
             for (expense in expenses) {
