@@ -2,12 +2,15 @@ package com.example.moneysplit
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import android.widget.ImageView
+
 
 class MainActivity : ComponentActivity() {
 
@@ -33,6 +36,23 @@ class MainActivity : ComponentActivity() {
             passwordInput = findViewById(R.id.passwordInput)
             loginButton = findViewById(R.id.loginButton)
             registerSwitch = findViewById(R.id.registerSwitch)
+
+            val passwordInput = findViewById<EditText>(R.id.passwordInput)
+            val passwordToggle = findViewById<ImageView>(R.id.passwordToggle)
+
+            var isPasswordVisible = false
+
+            passwordToggle.setOnClickListener {
+                isPasswordVisible = !isPasswordVisible
+                if (isPasswordVisible) {
+                    passwordInput.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    passwordToggle.setImageResource(R.drawable.ic_eye_open) // eye open icon
+                } else {
+                    passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    passwordToggle.setImageResource(R.drawable.ic_eye_closed) // eye closed icon
+                }
+                passwordInput.setSelection(passwordInput.text.length)
+            }
 
             loginButton.setOnClickListener {
                 val username = usernameInput.text.toString().trim()

@@ -50,11 +50,28 @@
         android:padding="12dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#BBBBBB"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/passwordToggle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/usernameInput" />
 
+    <!-- Eye Icon -->
+
     <!-- Login Button -->
+
+    <ImageView
+        android:id="@+id/passwordToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="#1E1E1E"
+        android:contentDescription="Show/Hide Password"
+        android:padding="12dp"
+        android:src="@drawable/ic_eye_closed"
+        app:layout_constraintBottom_toBottomOf="@id/passwordInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/passwordInput"
+        app:layout_constraintVertical_bias="1.0" />
+
     <Button
         android:id="@+id/loginButton"
         android:layout_width="0dp"

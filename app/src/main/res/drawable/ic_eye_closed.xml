@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Eye Shape -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12 4.5C7 4.5 2.73 7.61 1 12c.74 1.79 1.85 3.36 3.24 4.61l-1.41 1.41L4.34 20l1.41-1.41A10.97 10.97 0 0 0 12 19.5c5 0 9.27-3.11 11-7.5a11.02 11.02 0 0 0-2.41-3.58L19 8.34A8.978 8.978 0 0 1 21 12c-1.5 3.57-5 6-9 6-1.72 0-3.32-.5-4.69-1.35l-1.41 1.41C7.62 19.5 9.72 20 12 20c5 0 9.27-3.11 11-7.5-1.73-4.39-6-7.5-11-7.5-2.28 0-4.38.5-6.17 1.41L4.34 4 3 5.34l1.41 1.41A10.97 10.97 0 0 0 1 12c.73 1.79 1.85 3.36 3.24 4.61L4.34 20l1.41-1.41A10.97 10.97 0 0 0 12 19.5c5 0 9.27-3.11 11-7.5-1.73-4.39-6-7.5-11-7.5z"/>
+
+    <!-- Slash Line -->
+    <path
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3 3L21 21" />
+
+</vector>
