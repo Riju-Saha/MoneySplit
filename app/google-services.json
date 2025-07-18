@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "820804361921",
+    "project_id": "moneysplit-805fb",
+    "storage_bucket": "moneysplit-805fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820804361921:android:bc5c1b77c8fe67735ffe40",
+        "android_client_info": {
+          "package_name": "com.example.moneysplit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBr683uarIU7OpllCvQ5I7UgXn9s5gfs5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

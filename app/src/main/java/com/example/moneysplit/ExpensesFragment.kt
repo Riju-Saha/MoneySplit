@@ -6,7 +6,6 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import android.graphics.Color
-import android.content.Context
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -15,7 +14,6 @@ import android.text.TextUtils
 import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.moneysplit.Expense
 
 
 class ExpensesFragment : Fragment() {
@@ -107,7 +105,7 @@ class ExpensesFragment : Fragment() {
         val timeView = styledText(time)
 
         val modeRaw = expense.modeOfPayment.trim()
-        val modeMasked = if (modeRaw.length >= 4) "${modeRaw.takeLast(4)}" else modeRaw
+        val modeMasked = if (modeRaw.length >= 4) modeRaw.takeLast(4) else modeRaw
         val modeView = styledText(modeMasked)
 
         val moreOption = TextView(requireContext()).apply {
@@ -257,7 +255,7 @@ class ExpensesFragment : Fragment() {
                             }
                         }
 
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         Toast.makeText(requireContext(), "Invalid date or time", Toast.LENGTH_SHORT).show()
                     }
 
