@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moneysplit.moneySplit_Database.Card
 
 class CardTableAdapter(
     private val cards: List<Card>,
@@ -26,15 +25,25 @@ class CardTableAdapter(
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val card = cards[position]
+
+        // ✅ Debug Log: check if data is mapped correctly
+        println("DEBUG: Binding card at pos=$position -> ${card.cardType} ${card.cardLast4}")
+
         holder.slNoText.text = (position + 1).toString()
         holder.cardTypeText.text = card.cardType
-        holder.cardNumberText.text = "${card.cardLast4}"
+
+        // Masking or formatting can be done here if needed
+        holder.cardNumberText.text = card.cardLast4
 
         holder.itemView.setOnLongClickListener {
+            println("DEBUG: Long click on card -> ${card.cardType} ${card.cardLast4}")
             onLongClick(card)
             true
         }
     }
 
-    override fun getItemCount() = cards.size
+    override fun getItemCount(): Int {
+        println("DEBUG: Adapter has ${cards.size} cards")
+        return cards.size
+    }
 }

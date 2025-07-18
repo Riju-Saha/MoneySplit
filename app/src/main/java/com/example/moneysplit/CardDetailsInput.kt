@@ -43,7 +43,7 @@ class CardDetailsInput : AppCompatActivity() {
         skipButton.visibility = if (isFromProfile) View.GONE else View.VISIBLE
 
         addButton.setOnClickListener {
-            val dbHelper = moneySplit_Database(this)
+            val dbHelper = FirebaseHelper()
             val selectedType = typeSpinner.selectedItem.toString()
             val last4 = last4Input.text.toString().trim()
 
@@ -58,23 +58,25 @@ class CardDetailsInput : AppCompatActivity() {
             }
 
             val addedDatetime = System.currentTimeMillis().toString()
-            val success = dbHelper.insertCard(username!!, selectedType, last4, addedDatetime)
 
-            if (success) {
-                if (!isFromProfile) {
-                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                }
+            dbHelper.insertCard(username!!, selectedType, last4, addedDatetime) { success ->
+                if (success) {
+                    if (!isFromProfile) {
+                        Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
+                    }
 
-                val intent = Intent(this, Home::class.java).apply {
-                    putExtra("username", username)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    val intent = Intent(this, Home::class.java).apply {
+                        putExtra("username", username)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Failed to add card", Toast.LENGTH_SHORT).show()
                 }
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to add card", Toast.LENGTH_SHORT).show()
             }
         }
+
 
         val infoClickListener = {
             AlertDialog.Builder(this)

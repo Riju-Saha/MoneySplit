@@ -9,18 +9,19 @@ import android.graphics.Color
 import android.content.Context
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.text.TextUtils
+import android.util.Log
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
+import com.example.moneysplit.Expense
+
 
 class ExpensesFragment : Fragment() {
 
-    private lateinit var dbHelper: moneySplit_Database
+    private lateinit var dbHelper: FirebaseHelper
     private lateinit var tableLayout: TableLayout
-    private lateinit var expenses: MutableList<moneySplit_Database.Expense>
     private var username: String = "User"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,41 +34,45 @@ class ExpensesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.expenses_fragment, container, false)
-        dbHelper = moneySplit_Database(requireContext())
+        dbHelper = FirebaseHelper()
         tableLayout = view.findViewById(R.id.expensesTable)
-        loadExpenses(username)
+//        loadExpenses(username)
         return view
     }
 
     private fun loadExpenses(username: String) {
+        Log.d("ExpensesFragment", "Loading expenses for user: $username")
         tableLayout.removeAllViews()
-        expenses = dbHelper.getAllExpenses(username)
-            .sortedByDescending { it.dateTime }
-            .toMutableList()
 
-        // Header row
-        val headerRow = TableRow(requireContext())
-        val headers = listOf("Amount", "Purpose", "Type", "Date", "Time", "Mode")
+        dbHelper.getAllExpenses(username) { expensesList ->
+            Log.d("ExpensesFragment", "Loaded ${expensesList.size} expenses")
 
-        headers.forEach {
-            val textView = TextView(requireContext()).apply {
-                text = it
-                setTypeface(null, Typeface.BOLD)
-                setPadding(16, 12, 16, 12)
-                setTextColor(Color.WHITE)
-                ellipsize = TextUtils.TruncateAt.END
-                maxLines = 1
+            val expenses = expensesList.sortedByDescending { pair -> pair.second.dateTime }
+
+            val headerRow = TableRow(requireContext())
+            val headers = listOf("Amount", "Purpose", "Type", "Date", "Time", "Mode")
+
+            headers.forEach {
+                val textView = TextView(requireContext()).apply {
+                    text = it
+                    setTypeface(null, Typeface.BOLD)
+                    setPadding(16, 12, 16, 12)
+                    setTextColor(Color.WHITE)
+                    ellipsize = TextUtils.TruncateAt.END
+                    maxLines = 1
+                }
+                headerRow.addView(textView)
             }
-            headerRow.addView(textView)
-        }
-        tableLayout.addView(headerRow)
+            tableLayout.addView(headerRow)
 
-        for (expense in expenses) {
-            addExpenseRow(expense)
+            for ((id, expense) in expenses) {
+                addExpenseRow(expense)
+            }
         }
     }
 
-    private fun addExpenseRow(expense: moneySplit_Database.Expense) {
+
+    private fun addExpenseRow(expense: Expense) {
         val dateTimeParts = expense.dateTime.split(" ")
         val rawDate = dateTimeParts.getOrNull(0) ?: ""
         val fullTime = dateTimeParts.getOrNull(1) ?: ""
@@ -94,12 +99,13 @@ class ExpensesFragment : Fragment() {
 
         val amountView = styledText("₹${expense.amount}")
         val purposeView = styledText(expense.purpose)
-        val typeView = styledText(expense.type,
-            if (expense.type == "Credit") 0xFF4CAF50.toInt() else 0xFFF44336.toInt())
+        val typeView = styledText(
+            expense.type,
+            if (expense.type == "Credit") 0xFF4CAF50.toInt() else 0xFFF44336.toInt()
+        )
         val dateView = styledText(date)
         val timeView = styledText(time)
 
-        // Show only last 4 digits of mode
         val modeRaw = expense.modeOfPayment.trim()
         val modeMasked = if (modeRaw.length >= 4) "${modeRaw.takeLast(4)}" else modeRaw
         val modeView = styledText(modeMasked)
@@ -131,7 +137,7 @@ class ExpensesFragment : Fragment() {
         tableLayout.addView(row)
     }
 
-    private fun showEditDeleteDialog(expense: moneySplit_Database.Expense) {
+    private fun showEditDeleteDialog(expense: Expense) {
         val options = arrayOf("Edit", "Delete")
         AlertDialog.Builder(requireContext())
             .setTitle("Select Action")
@@ -139,16 +145,21 @@ class ExpensesFragment : Fragment() {
                 when (which) {
                     0 -> showEditDialog(expense)
                     1 -> {
-                        dbHelper.deleteExpense(username, expense)
-                        Toast.makeText(requireContext(), "Expense deleted", Toast.LENGTH_SHORT).show()
-                        loadExpenses(username)
+                        dbHelper.deleteExpense(username, expense) { success ->
+                            if (success) {
+                                Toast.makeText(requireContext(), "Expense deleted", Toast.LENGTH_SHORT).show()
+                                loadExpenses(username)
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to delete expense", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 }
             }
             .show()
     }
 
-    private fun showEditDialog(expense: moneySplit_Database.Expense) {
+    private fun showEditDialog(expense: Expense) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_expense, null)
         val amountInput = dialogView.findViewById<EditText>(R.id.editAmount)
         val purposeInput = dialogView.findViewById<EditText>(R.id.editPurpose)
@@ -165,27 +176,23 @@ class ExpensesFragment : Fragment() {
         dateInput.setText(date)
         timeInput.setText(time)
 
-        // Setup mode spinner
         val modes = mutableListOf("Cash")
-        val savedCards = dbHelper.getCardLast4Digits(username)
-        savedCards.forEach { last4 ->
-            modes.add("Card ($last4)")
+        dbHelper.getCardLast4Digits(username) { savedCards ->
+            savedCards.forEach { last4 -> modes.add("Card ($last4)") }
+
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modes)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            modeInput.adapter = adapter
+
+            val currentMode = expense.modeOfPayment
+            val modeIndex = modes.indexOfFirst {
+                currentMode.equals(it, ignoreCase = true) || currentMode.contains(it, ignoreCase = true)
+            }
+            if (modeIndex >= 0) {
+                modeInput.setSelection(modeIndex)
+            }
         }
 
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        modeInput.adapter = adapter
-
-        // Pre-select current mode
-        val currentMode = expense.modeOfPayment
-        val modeIndex = modes.indexOfFirst {
-            currentMode.equals(it, ignoreCase = true) || currentMode.contains(it, ignoreCase = true)
-        }
-        if (modeIndex >= 0) {
-            modeInput.setSelection(modeIndex)
-        }
-
-        // Date Picker
         dateInput.setOnClickListener {
             val parts = date.split("-")
             val year = parts.getOrNull(0)?.toIntOrNull() ?: 2024
@@ -200,7 +207,6 @@ class ExpensesFragment : Fragment() {
             datePicker.show()
         }
 
-        // Time Picker
         timeInput.setOnClickListener {
             val parts = time.split(":")
             val hour = parts.getOrNull(0)?.toIntOrNull() ?: 0
@@ -224,7 +230,6 @@ class ExpensesFragment : Fragment() {
                 val newTime = timeInput.text.toString().trim()
                 val newModeRaw = modeInput.selectedItem?.toString()?.trim() ?: ""
                 val newMode = if (newModeRaw.startsWith("Card (") && newModeRaw.endsWith(")")) {
-                    // Extract last 4 inside brackets
                     newModeRaw.substringAfter("Card (").substringBefore(")").trim()
                 } else {
                     newModeRaw
@@ -243,13 +248,15 @@ class ExpensesFragment : Fragment() {
                             return@setPositiveButton
                         }
 
-                        val success = dbHelper.updateExpense(username, expense, newAmount, newPurpose, newDateTime, newMode)
-                        if (success) {
-                            Toast.makeText(requireContext(), "Expense updated", Toast.LENGTH_SHORT).show()
-                            loadExpenses(username)
-                        } else {
-                            Toast.makeText(requireContext(), "Failed to update", Toast.LENGTH_SHORT).show()
+                        dbHelper.updateExpense(username, expense, newAmount, newPurpose, newDateTime, newMode) { success ->
+                            if (success) {
+                                Toast.makeText(requireContext(), "Expense updated", Toast.LENGTH_SHORT).show()
+                                loadExpenses(username)
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to update", Toast.LENGTH_SHORT).show()
+                            }
                         }
+
                     } catch (e: Exception) {
                         Toast.makeText(requireContext(), "Invalid date or time", Toast.LENGTH_SHORT).show()
                     }
@@ -262,39 +269,38 @@ class ExpensesFragment : Fragment() {
             .show()
     }
 
-
-    private fun showPlansDropdown(anchor: View, expense: moneySplit_Database.Expense) {
+    private fun showPlansDropdown(anchor: View, expense: Expense) {
         if (username == "User") {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val plans = dbHelper.getAllPlanNames(username)
-        if (plans.isEmpty()) {
-            Toast.makeText(requireContext(), "No plans found.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        dbHelper.getAllPlanNames(username) { plans ->
+            if (plans.isEmpty()) {
+                Toast.makeText(requireContext(), "No plans found.", Toast.LENGTH_SHORT).show()
+                return@getAllPlanNames
+            }
 
-        val popupMenu = PopupMenu(requireContext(), anchor)
-        plans.forEachIndexed { index, planName ->
-            popupMenu.menu.add(Menu.NONE, index, index, planName)
-        }
+            val popupMenu = PopupMenu(requireContext(), anchor)
+            plans.forEachIndexed { index, planName ->
+                popupMenu.menu.add(Menu.NONE, index, index, planName)
+            }
 
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            val selectedPlan = plans[menuItem.itemId]
-            val intent = Intent(requireContext(), PlanDetailsActivity::class.java)
-            intent.putExtra("planName", selectedPlan)
-            intent.putExtra("prefillAmount", expense.amount)
-            intent.putExtra("prefillPurpose", expense.purpose)
-            intent.putExtra("prefillDate", expense.dateTime.split(" ")[0])
-            intent.putExtra("prefillPaidBy", username)
-            startActivity(intent)
-            true
-        }
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                val selectedPlan = plans[menuItem.itemId]
+                val intent = Intent(requireContext(), PlanDetailsActivity::class.java)
+                intent.putExtra("planName", selectedPlan)
+                intent.putExtra("prefillAmount", expense.amount)
+                intent.putExtra("prefillPurpose", expense.purpose)
+                intent.putExtra("prefillDate", expense.dateTime.split(" ")[0])
+                intent.putExtra("prefillPaidBy", username)
+                startActivity(intent)
+                true
+            }
 
-        popupMenu.show()
+            popupMenu.show()
+        }
     }
-
 
     override fun onResume() {
         super.onResume()

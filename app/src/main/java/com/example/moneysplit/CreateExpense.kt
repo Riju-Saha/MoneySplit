@@ -84,15 +84,16 @@ class CreateExpense : AppCompatActivity() {
             }, hour, minute, true).show()
         }
 
-        // ✅ Prepare mode of payment options
-        val db = moneySplit_Database(this)
-        val cardsList = db.getCardsForUser(username)
-        val paymentModes = cardsList.map { "${it.cardType} - ${it.cardLast4}" }.toMutableList()
-        paymentModes.add("Cash")
+        val db = FirebaseHelper()
 
-        val adapter = ArrayAdapter(this, R.layout.spinner_item, paymentModes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        paymentModeSpinner.adapter = adapter
+        db.getCardsForUser(username) { cardsList ->
+            val paymentModes = cardsList.map { "${it.cardType} - ${it.cardLast4}" }.toMutableList()
+            paymentModes.add("Cash")
+
+            val adapter = ArrayAdapter(this, R.layout.spinner_item, paymentModes)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            paymentModeSpinner.adapter = adapter
+        }
 
         addButton.setOnClickListener {
             val selectedMode = paymentModeSpinner.selectedItem?.toString() ?: "Cash"
@@ -110,7 +111,6 @@ class CreateExpense : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Check if selected date-time is in the future
             if (selectedTime.after(currentTime)) {
                 Toast.makeText(this, "Future date-time not allowed", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -118,22 +118,28 @@ class CreateExpense : AppCompatActivity() {
 
             val formattedDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(selectedTime)
 
-            val success = db.insertExpenseWithTimeAndMode(
-                username, amount, purpose, type, formattedDateTime, selectedMode
-            )
-
-            if (success) {
-                Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, Home::class.java)
-                intent.putExtra("username", username)
-                intent.putExtra("openFragment", "expense")
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to add expense", Toast.LENGTH_SHORT).show()
+            db.insertExpenseWithTimeAndMode(
+                username,
+                amount,
+                purpose,
+                type,
+                formattedDateTime,
+                selectedMode
+            ) { success ->
+                if (success) {
+                    Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, Home::class.java)
+                    intent.putExtra("username", username)
+                    intent.putExtra("openFragment", "expense")
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Failed to add expense", Toast.LENGTH_SHORT).show()
+                }
             }
         }
+
     }
 
     private fun updateDateText() {

@@ -29,25 +29,26 @@ class Register : ComponentActivity() {
             val password = passwordNewInput.text.toString().trim()
 
             if (fullname.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()) {
-                val dbHelper = moneySplit_Database(this)
-                val success = dbHelper.insertUser(fullname, username, password)
+                val dbHelper = FirebaseHelper()
 
-                if (success) {
-                    // ✅ Save session using SessionManager
-                    SessionManager.saveUserSession(this, username)
+                dbHelper.insertUser(fullname, username, password) { success ->
+                    if (success) {
+                        SessionManager.saveUserSession(this, username)
 
-                    val intent = Intent(this, CardDetailsInput::class.java).apply {
-                        putExtra("username", username)
-                        putExtra("fromProfile", false)
+                        val intent = Intent(this, CardDetailsInput::class.java).apply {
+                            putExtra("username", username)
+                            putExtra("fromProfile", false)
+                        }
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Username already exists", Toast.LENGTH_SHORT).show()
                     }
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Username already exists", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
             }
+
         }
 
         loginSwitch.setOnClickListener {

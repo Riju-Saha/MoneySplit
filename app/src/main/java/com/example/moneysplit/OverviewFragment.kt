@@ -24,7 +24,7 @@ import java.util.*
 
 class OverviewFragment : Fragment() {
 
-    private lateinit var dbHelper: moneySplit_Database
+    private lateinit var dbHelper: FirebaseHelper
     private lateinit var totalSpentText: TextView
     private lateinit var creditDebitText: TextView
     private lateinit var pieChart: PieChart
@@ -43,7 +43,7 @@ class OverviewFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.overview_fragment, container, false)
 
-        dbHelper = moneySplit_Database(requireContext())
+        dbHelper = FirebaseHelper()
         totalSpentText = view.findViewById(R.id.totalSpentText)
         creditDebitText = view.findViewById(R.id.creditDebitText)
         pieChart = view.findViewById(R.id.pieChart)
@@ -114,15 +114,18 @@ class OverviewFragment : Fragment() {
 
         Log.d("OverviewFragment", "Fetching for year=$year and month=$month")
 
-        val credit = dbHelper.getTotalForMonthByTypeFromExpenseUsingLike(month, year, "credit", username)
-        val debit = dbHelper.getTotalForMonthByTypeFromExpenseUsingLike(month, year, "debit", username)
-        val total = credit + debit
+        dbHelper.getTotalForMonthByTypeFromExpenseUsingLike(month, year, "credit", username) { credit ->
+            dbHelper.getTotalForMonthByTypeFromExpenseUsingLike(month, year, "debit", username) { debit ->
+                val total = credit + debit
 
-        totalSpentText.text = "Total Transaction in $monthLabel: ₹%.2f".format(total)
-        creditDebitText.text = "Credit: ₹%.2f | Debit: ₹%.2f".format(credit, debit)
+                totalSpentText.text = "Total Transaction in $monthLabel: ₹%.2f".format(total)
+                creditDebitText.text = "Credit: ₹%.2f | Debit: ₹%.2f".format(credit, debit)
 
-        updatePieChart(credit.toFloat(), debit.toFloat())
+                updatePieChart(credit.toFloat(), debit.toFloat())
+            }
+        }
     }
+
 
 
     private fun updatePieChart(credit: Float, debit: Float) {

@@ -16,7 +16,7 @@ class CreatePlan : AppCompatActivity() {
     private lateinit var etPeopleCount: EditText
     private lateinit var dynamicNamesContainer: LinearLayout
     private val nameFields = mutableListOf<EditText>()
-    private lateinit var dbHelper: moneySplit_Database
+    private lateinit var dbHelper: FirebaseHelper
     private lateinit var btnSavePlan: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +24,7 @@ class CreatePlan : AppCompatActivity() {
         setContentView(R.layout.create_plan)
         supportActionBar?.hide()
 
-        dbHelper = moneySplit_Database(this)
+        dbHelper = FirebaseHelper()
 
         val etPlanName = findViewById<EditText>(R.id.etPlanName)
         etPeopleCount = findViewById(R.id.etPeopleCount)
@@ -66,33 +66,39 @@ class CreatePlan : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (dbHelper.isPlanExists(planName, username)) {
-                Toast.makeText(this, "Plan name already exists!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            dbHelper.isPlanExists(planName, username) { exists ->
+                if (exists) {
+                    Toast.makeText(this, "Plan name already exists!", Toast.LENGTH_SHORT).show()
+                } else {
 
-            val numParticipants = peopleNames.size
-            val participants = peopleNames.joinToString(", ")
+                    val participants = nameFields.map { it.text.toString() }.toMutableList()
+                    if (!participants.contains(username)) {
+                        participants.add(username)
+                    }
 
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-            val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                    val numParticipants = peopleNames.size
 
-            val success = dbHelper.insertPlan(planName, numParticipants, participants, date, time, username)
+                    val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
-            if (success) {
-                Toast.makeText(this, "Plan Saved Successfully!", Toast.LENGTH_SHORT).show()
-                etPlanName.text.clear()
-                etPeopleCount.text.clear()
-                dynamicNamesContainer.removeAllViews()
-                nameFields.clear()
-                val intent = Intent(this, Home::class.java)
-                intent.putExtra("username", username)
-                intent.putExtra("openFragment", "plans")
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to save plan", Toast.LENGTH_SHORT).show()
+                    dbHelper.insertPlan(planName, numParticipants, participants, date, time, username) { success ->
+                        if (success) {
+                            Toast.makeText(this, "Plan Saved Successfully!", Toast.LENGTH_SHORT).show()
+                            etPlanName.text.clear()
+                            etPeopleCount.text.clear()
+                            dynamicNamesContainer.removeAllViews()
+                            nameFields.clear()
+                            val intent = Intent(this, Home::class.java)
+                            intent.putExtra("username", username)
+                            intent.putExtra("openFragment", "plans")
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Toast.makeText(this, "Failed to save plan", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
     }
